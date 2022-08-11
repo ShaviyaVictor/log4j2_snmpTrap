@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-4r [%t] %-5p %c %x - %m%n" />
+        </Console>
+        <RollingFile name="sys" fileName="/var/log/digicel/selfcareservice.out"
+                     filePattern="/var/log/digicel/$${date:yyyy-MM}/selfcareservice-%d{yyyy-MM-dd}-%i.out">
+            <PatternLayout pattern="%d %5p %c{1}:%L - %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <RollingFile name="AuditLogsAppender" fileName="/var/log/digicel/selfcare/digicel_audit_logs.csv"
+                     filePattern="/var/log/digicel/selfcare/%d{yyyy_MM_dd}_digicel_audit_logs.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+        <RollingFile name="csvEventRecorder" fileName="/var/log/digicel/selfcare.service.audit.csv"
+                     filePattern="/var/log/digicel/%d{yyyy_MM_dd}_selfcare.service.audit.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+
+        <!--Setting up SNMPTrapAppender -->
+        <SNMPTrapAppender name="SNMPappender" >
+            <!--This pattern will be send with varbinding.
+            For example "SNMPv2-SMI::enterprises.24.12.10.22.64 = 13:59:30,017 [main] INFO TEST - info!"-->
+            <PatternLayout pattern="Date: %d, Severity:%p, Application: SIF, Node: %X{node}, Status: %m%n"/>
+            <!--if true prints debugging information on console(system.print())-->
+            <verbose>true</verbose>
+            <!--SNMP version. Applicable values are 1,2c-->
+            <SNMPVersions>2c,1</SNMPVersions>
+            <!-- IP address of the remote host that traps sent in to.-->
+            <ManagementHost>localhost</ManagementHost>
+            <!--listening port for SNMP traps in host. could be any TCP/IP port. The standard is 162-->
+            <ManagementHostTrapListenPort>162</ManagementHostTrapListenPort>
+            <!--Enterprise OID that will be sent in the SNMP PDU.
+            Ex: 1.3.6.1.2.1.1.2.0 points to the standard sysObjectID of the "systemName" node of the standard system MIB.-->
+            <EnterpriseOID>1.3.6.1.4.1.27.1.1.1</EnterpriseOID>
+            <!--IP address of the host that is using this appender to send SNMP traps. This address will be encoded in the SNMP PDU-->
+            <LocalIPAddress>127.0.0.1</LocalIPAddress>
+            <!--Value of the port that will be used to send traps out from the local host.The standard is 161-->
+            <LocalTrapSendPort>168</LocalTrapSendPort>
+            <!-- GenericTrapType int, Applicable for SNMP v1
+                Value   Type
+                0       coldStart
+                1       warmStart
+                2       linkDown
+                3       linkUp
+                4       authenticationFailure
+                5       egpNeighborLoss
+                6       enterpriseSpecific
+            -->
+            <GenericTrapType>6</GenericTrapType>
+            <!-- Applicable for SNMP v1, An INTEGER in (value between -128 to 127)-->
+            <SpecificTrapType>12345678</SpecificTrapType>
+            <!--community string for the SNMP session. E.g. "public".-->
+            <CommunityString>Air</CommunityString>
+            <!--Add each line of exception stack trace in to separate varbindings. applicable values 'true','false' -->
+            <ForwardStackTraceWithTrap>FALSE</ForwardStackTraceWithTrap>
+            <!-- OID that will be sent in the SNMP PDU for this app.
+                 variable binding for Enterprise Specific objects, this should be available in MIB -->
+            <ApplicationTrapOID>1.3.6.1.4.1.27.1.1.1.2.1</ApplicationTrapOID>
+            <!-- Other than above settings, for SNMP version 2c, "retries= 2" and "timeout=10sec"-->
+        </SNMPTrapAppender>
+        <!--End of Setting up SNMPTrapAppender -->
+
+        <RollingFile name="StatAppender" fileName="/var/log/digicel/digicel.statistics.csv"
+                     filePattern="/var/log/digicel/%d{yyyy_MM_dd}_digicel.statistics.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+        <RollingFile name="SnmpFileAppender" fileName="/var/log/digicel/selfcareservice-alarm.log"
+                     filePattern="/var/log/digicel/selfcareservice-alarm.log.%d{yyyy-MM-dd}">
+            <PatternLayout pattern="%m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="TRXAppender" fileName="/var/log/digicel/digicel.transactions.csv"
+                     filePattern="/var/log/digicel/%d{yyyy_MM_dd}_digicel.transactions.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+        <RollingFile name="SelfcareServiceStatisticsAppender" fileName="/var/log/digicel.Selfcare.statistics.csv"
+                     filePattern="/var/log/%d{yyyy_MM_dd}_digicel.Selfcare.statistics.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+        <RollingFile name="ShakeItTransactionsAppender" fileName="/var/log/digicel.selfcare.shakeit.csv"
+                     filePattern="/var/log/%d{yyyy_MM_dd}_digicel.selfcare.shakeit.csv">
+            <PatternLayout pattern="%m%n"/>
+            <TimeBasedTriggeringPolicy />
+        </RollingFile>
+        <!--<EventHub name="eventhubAppender" connectionString="Endpoint=sb://gr-dev-agile-01.servicebus.windows.net/;SharedAccessKeyName=dev-sender;SharedAccessKey=dtavoAF/8Atzvdn7CvpUnBYF6QFl8lx5+LHM301pcJ0=;EntityPath=development">
+            <EventHubJsonLayout separator=";"
+                                dataHeaders="dateTime;userAgent;remoteIP;method;methodFilterValue;processingTime;userId;clientId;msisdn;platformVersion;lang;source;authenticationType;username;responseMessage;allowedParams;pathParams;queryParams"
+                                isSysLog="false"/>
+        </EventHub>-->
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.digicel.module.axis2.soaplogging" level="trace">
+        </Logger>
+        <Logger name="SNMP" additivity="false">
+            <level value="info" />
+            <AppenderRef ref="SNMPappender" />
+            <AppenderRef ref="SnmpFileAppender" />
+        </Logger>
+        <Logger additivity="true" name="Statistics">
+            <level value="info" />
+            <AppenderRef ref="StatAppender" />
+        </Logger>
+        <Logger additivity="true" name="Transactions">
+            <level value="info" />
+            <AppenderRef ref="TRXAppender" />
+        </Logger>
+        <Logger additivity="false" name="com.digicel">
+            <level value="info"/>
+        </Logger>
+        <Logger name="AuditLog" additivity="false">
+            <level value="debug" />
+            <AppenderRef ref="csvEventRecorder" />
+            <!--             <appender-ref ref="eventhubAppender"/>-->
+        </Logger>
+        <Logger additivity="true" name="SelfcareServiceStatistics">
+            <level value="info" />
+            <AppenderRef ref="SelfcareServiceStatisticsAppender" />
+        </Logger>
+        <Logger additivity="true" name="ShakeItTransactions">
+            <level value="info" />
+            <AppenderRef ref="ShakeItTransactionsAppender" />
+        </Logger>
+        <Logger additivity="false" name="AuditLogs">
+            <level value="info" />
+            <AppenderRef ref="AuditLogsAppender" />
+        </Logger>
+        <Root level="trace">
+            <AppenderRef ref="stdout" />
+            <AppenderRef ref="sys" />
+        </Root>
+    </Loggers>
+
+</Configuration>
